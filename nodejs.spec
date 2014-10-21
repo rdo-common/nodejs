@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 0.10.32
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -68,6 +68,16 @@ Provides: nodejs(engine) = %{version}
 # The ham-radio group has agreed to rename their binary for us, but
 # in the meantime, we're setting an explicit Conflicts: here
 Conflicts: node <= 0.3.2-11
+
+# The punycode module was absorbed into the standard library in v0.6.
+# It still exists as a seperate package for the benefit of users of older
+# versions.  Since we've never shipped anything older than v0.10 in Fedora,
+# we don't need the seperate nodejs-punycode package, so we Provide it here so
+# dependent packages don't need to override the dependency generator.
+# See also: RHBZ#11511811
+Provides: nodejs-punycode = 1.3.1
+Provides: npm(punycode) = 1.3.1
+
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
@@ -184,6 +194,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_defaultdocdir}/%{name}-docs-%{version}
 
 %changelog
+* Tue Oct 21 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.32-2
+- add Provides nodejs-punycode (RHBZ#1151811)
+
 * Thu Sep 18 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.32-1
 - new upstream release 0.10.32
   http://blog.nodejs.org/2014/08/19/node-v0-10-31-stable/
