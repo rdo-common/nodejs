@@ -1,6 +1,6 @@
 Name: nodejs
-Version: 0.10.32
-Release: 2%{?dist}
+Version: 0.10.33
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -194,6 +194,14 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_defaultdocdir}/%{name}-docs-%{version}
 
 %changelog
+* Wed Nov 19 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.33-1
+- new upstream release 0.10.33
+  http://blog.nodejs.org/2014/10/23/node-v0-10-33-stable/
+- This release disables SSLv3 to secure Node.js services against the POODLE
+  attack.  (CVE-2014-3566; RHBZ#1152789)  For more information or to learn how
+  to re-enable SSLv3 in order to support legacy clients, please see the upstream
+  release announcement linked above.
+
 * Tue Oct 21 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.32-2
 - add Provides nodejs-punycode (RHBZ#1151811)
 
