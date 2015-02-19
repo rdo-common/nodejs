@@ -1,5 +1,5 @@
 Name: nodejs
-Version: 0.10.33
+Version: 0.10.36
 Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
@@ -194,6 +194,13 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_defaultdocdir}/%{name}-docs-%{version}
 
 %changelog
+* Thu Feb 19 2015 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.36-1
+- new upstream release 0.10.36
+  http://blog.nodejs.org/2015/01/26/node-v0-10-36-stable/
+- Please note that several upstream releases were skipped due to regressions
+  reported in the upstream bug tracker.  Please also review the 0.10.34 and
+  0.10.35 changelogs available at the above URL for a list of all changes.
+
 * Wed Nov 19 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.33-1
 - new upstream release 0.10.33
   http://blog.nodejs.org/2014/10/23/node-v0-10-33-stable/
