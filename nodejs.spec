@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 0.10.36
-Release: 1%{?dist}
+Release: 3%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -37,7 +37,7 @@ Patch4: nodejs-revert-utf8-node.patch
 
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME,
 # so we need to be more explicit until spot fixes that
-%global v8_ge 1:3.14.5.7
+%global v8_ge 1:3.14.5.10-17
 %global v8_lt 1:3.15
 %global v8_abi 3.14
 
@@ -194,6 +194,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_defaultdocdir}/%{name}-docs-%{version}
 
 %changelog
+* Tue Feb 24 2015 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.36-3
+- bump v8 requires (RHBZ#1195457)
+
 * Thu Feb 19 2015 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.36-1
 - new upstream release 0.10.36
   http://blog.nodejs.org/2015/01/26/node-v0-10-36-stable/
