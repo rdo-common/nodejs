@@ -1,13 +1,45 @@
+%global with_debug 0
+
+# ARM builds currently break on the Debug builds, so we'll just
+# build the standard runtime until that gets sorted out.
+%ifarch %{arm} aarch64 %{power64}
+%global with_debug 0
+%endif
+
+# == Node.js Version ==
+%global nodejs_major 0
+%global nodejs_minor 10
+%global nodejs_patch 42
+%global nodejs_abi %{nodejs_major}.%{nodejs_minor}
+
+# == Bundled Dependency Versions ==
+# v8 - from deps/v8/src/version.cc
+%global v8_major 3
+%global v8_minor 14
+%global v8_build 5
+%global v8_patch 9
+# V8 presently breaks ABI at least every x.y release while never bumping SONAME
+%global v8_abi %{v8_major}.%{v8_minor}
+
+# c-ares - from deps/cares/include/ares_version.h
+%global c_ares_major 1
+%global c_ares_minor 9
+%global c_ares_patch 0
+
+# http-parser - from deps/http-parser/http_parser.h
+%global http_parser_major 1
+%global http_parser_minor 1
+
 Name: nodejs
-Version: 0.10.36
-Release: 5%{?dist}
+Version: %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
 URL: http://nodejs.org/
 
 # Exclusive archs must match v8
-ExclusiveArch: %{ix86} x86_64 %{arm}
+ExclusiveArch: %{nodejs_arches}
 
 # nodejs bundles openssl, but we use the system version in Fedora
 # because openssl contains prohibited code, we remove openssl completely from
@@ -28,29 +60,19 @@ Patch1: nodejs-disable-gyp-deps.patch
 # http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
 Patch2: nodejs-use-system-certs.patch
 
-# The invalid UTF8 fix has been reverted since this breaks v8 API, which cannot
-# be done in a stable distribution release.  This build of nodejs will behave as
-# if NODE_INVALID_UTF8 was set.  For more information on the implications, see:
-# http://blog.nodejs.org/2014/06/16/openssl-and-breaking-utf-8-change/
-Patch3: nodejs-revert-utf8-v8.patch
-Patch4: nodejs-revert-utf8-node.patch
+# V8 presently breaks ABI at least every x.y release while never bumping SONAME
+# Make sure to keep this in sync with deps/v8/srv/version.cc
+%global v8_major 3
+%global v8_minor 14
+%global v8_build 5
+%global v8_patch 9
+%global v8_abi %{v8_major}.%{v8_minor}
 
-# V8 presently breaks ABI at least every x.y release while never bumping SONAME,
-# so we need to be more explicit until spot fixes that
-%global v8_ge 1:3.14.5.10-17
-%global v8_lt 1:3.15
-%global v8_abi 3.14
-
-BuildRequires: v8-devel >= %{v8_ge}
-BuildRequires: http-parser-devel >= 2.0
+BuildRequires: python-devel
 BuildRequires: compat-libuv010-devel
-BuildRequires: c-ares-devel
 BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
 BuildRequires: openssl-devel >= 1:1.0.1
-
-Requires: v8%{?_isa} >= %{v8_ge}
-Requires: v8%{?_isa} < %{v8_lt}
 
 # we need the system certificate store when Patch2 is applied
 Requires: ca-certificates
@@ -78,6 +100,19 @@ Conflicts: node <= 0.3.2-11
 Provides: nodejs-punycode = 1.3.1
 Provides: npm(punycode) = 1.3.1
 
+# Node.js has forked c-ares from upstream in an incompatible way, so we need
+# to carry the bundled version internally.
+# See https://github.com/nodejs/node/commit/766d063e0578c0f7758c3a965c971763f43fec85
+# Keep this in sync with deps/cares/include/ares_version.h
+Provides: bundled(c-ares) = 1.9.0
+
+# Node.js is closely tied to the version of v8 that is used with it. It makes
+# sense to use the bundled version because upstream consistently breaks ABI
+# even in point releases. Node.js upstream has now removed the ability to build
+# against a shared system version entirely.
+# See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
+Provides: bundled(v8) = %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
+
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
@@ -91,7 +126,7 @@ Summary: JavaScript runtime - development headers
 Group: Development/Languages
 Requires: %{name}%{?_isa} == %{version}-%{release}
 Requires: compat-libuv010-devel%{?_isa} http-parser-devel%{?_isa} v8-devel%{?_isa}
-Requires: openssl-devel%{?_isa} c-ares-devel%{?_isa} zlib-devel%{?_isa}
+Requires: openssl-devel%{?_isa} zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
 %description devel
@@ -111,35 +146,35 @@ The API documentation for the Node.js JavaScript runtime.
 
 # remove bundled dependencies
 %patch1 -p1
-rm -rf deps
+rm -rf deps/npm \
+       deps/uv \
+       deps/zlib
 
 # remove bundled CA certificates
 %patch2 -p1
 rm -f src/node_root_certs.h
 
-%patch3 -p1
-%patch4 -p1
-
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
-export CFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
-export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
+export CFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-delete-null-pointer-checks'
+export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-delete-null-pointer-checks'
 
 ./configure --prefix=%{_prefix} \
-           --shared-v8 \
            --shared-openssl \
            --shared-zlib \
-           --shared-cares \
            --shared-libuv \
            --shared-libuv-libname=:libuv.so.0.10 \
            --shared-libuv-includes=%{_includedir}/compat-libuv010 \
-           --shared-http-parser \
            --without-npm \
            --without-dtrace
 
+%if %{?with_debug} == 1
 # Setting BUILDTYPE=Debug builds both release and debug binaries
 make BUILDTYPE=Debug %{?_smp_mflags}
+%else
+make BUILDTYPE=Release %{?_smp_mflags}
+%endif
 
 %install
 rm -rf %{buildroot}
@@ -152,8 +187,10 @@ rm -rf %{buildroot}/%{_prefix}/lib/dtrace
 # Set the binary permissions properly
 chmod 0755 %{buildroot}/%{_bindir}/node
 
+%if %{?with_debug} == 1
 # Install the debug binary and set its permissions
 install -Dpm0755 out/Debug/node %{buildroot}/%{_bindir}/node_g
+%endif
 
 # own the sitelib directory
 mkdir -p %{buildroot}%{_prefix}/lib/node_modules
@@ -193,7 +230,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/AUTHORS
 
 %files devel
+%if %{?with_debug} == 1
 %{_bindir}/node_g
+%endif
 %{_includedir}/node
 %{_datadir}/node/common.gypi
 
@@ -202,6 +241,15 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 0.10.42-1
+- Update to Node.js 0.10.42
+- https://github.com/nodejs/node/blob/v0.10.42/ChangeLog
+- Bundle v8, c-ares and http-parser with Node.js
+- Drop patches that revert v8 UTF8 change
+- Resolves: RHBZ#1306203
+- Resolves: RHBZ#1306200
+- Resolves: RHBZ#1306207
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.10.36-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
