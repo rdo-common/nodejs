@@ -32,7 +32,7 @@
 
 Name: nodejs
 Version: %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -59,14 +59,6 @@ Patch1: nodejs-disable-gyp-deps.patch
 # modified version of Debian patch:
 # http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
 Patch2: nodejs-use-system-certs.patch
-
-# V8 presently breaks ABI at least every x.y release while never bumping SONAME
-# Make sure to keep this in sync with deps/v8/srv/version.cc
-%global v8_major 3
-%global v8_minor 14
-%global v8_build 5
-%global v8_patch 9
-%global v8_abi %{v8_major}.%{v8_minor}
 
 BuildRequires: python-devel
 BuildRequires: compat-libuv010-devel
@@ -241,6 +233,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 0.10.42-3
+- Remove duplicated content from spec file
+
 * Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 0.10.42-2
 - Re-enable debug builds on supported arches
 
