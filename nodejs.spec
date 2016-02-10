@@ -11,6 +11,7 @@
 %global nodejs_minor 10
 %global nodejs_patch 42
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
+%global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/src/version.cc
@@ -20,19 +21,29 @@
 %global v8_patch 9
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
+%global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
 
 # c-ares - from deps/cares/include/ares_version.h
 %global c_ares_major 1
 %global c_ares_minor 9
 %global c_ares_patch 0
+%global c_ares_version %{c_ares_major}.%{c_ares_minor}.%{c_ares_patch}
 
 # http-parser - from deps/http-parser/http_parser.h
 %global http_parser_major 1
 %global http_parser_minor 1
+%global http_parser_version %{http_parser_major}.%{http_parser_minor}
+
+# punycode - from lib/punycode.js
+# Note: this was merged into the mainline since 0.6.x
+%global punycode_major 1
+%global punycode_minor 2
+%global punycode_patch 0
+%global punycode_version %{punycode_major}.%{punycode_minor}.%{punycode_patch}
 
 Name: nodejs
-Version: %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-Release: 3%{?dist}
+Version: %{nodejs_version}
+Release: 4%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -89,21 +100,25 @@ Conflicts: node <= 0.3.2-11
 # we don't need the seperate nodejs-punycode package, so we Provide it here so
 # dependent packages don't need to override the dependency generator.
 # See also: RHBZ#11511811
-Provides: nodejs-punycode = 1.3.1
-Provides: npm(punycode) = 1.3.1
+Provides: nodejs-punycode = %{punycode_version}
+Provides: npm(punycode) = %{punycode_version}
 
 # Node.js has forked c-ares from upstream in an incompatible way, so we need
 # to carry the bundled version internally.
 # See https://github.com/nodejs/node/commit/766d063e0578c0f7758c3a965c971763f43fec85
 # Keep this in sync with deps/cares/include/ares_version.h
-Provides: bundled(c-ares) = 1.9.0
+Provides: bundled(c-ares) = %{c_ares_version}
 
 # Node.js is closely tied to the version of v8 that is used with it. It makes
 # sense to use the bundled version because upstream consistently breaks ABI
 # even in point releases. Node.js upstream has now removed the ability to build
 # against a shared system version entirely.
 # See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
-Provides: bundled(v8) = %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
+Provides: bundled(v8) = %{v8_version}
+
+# Node.js and http-parser share an upstream. The http-parser upstream does not
+# do releases often and is almost always far behind the bundled version
+Provides: bundled(http-parser) = %{http_parser_version}
 
 
 %description
@@ -117,7 +132,7 @@ real-time applications that run across distributed devices.
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
 Requires: %{name}%{?_isa} == %{version}-%{release}
-Requires: compat-libuv010-devel%{?_isa} http-parser-devel%{?_isa} v8-devel%{?_isa}
+Requires: compat-libuv010-devel%{?_isa} v8-devel%{?_isa}
 Requires: openssl-devel%{?_isa} zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
@@ -168,6 +183,7 @@ make BUILDTYPE=Debug %{?_smp_mflags}
 make BUILDTYPE=Release %{?_smp_mflags}
 %endif
 
+
 %install
 rm -rf %{buildroot}
 
@@ -208,6 +224,18 @@ cp -p ChangeLog LICENSE README.md AUTHORS %{buildroot}%{_pkgdocdir}
 mkdir -p %{buildroot}%{_datadir}/node
 cp -p common.gypi %{buildroot}%{_datadir}/node
 
+
+%check
+# Fail the build if the versions don't match
+%{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.node, '%{nodejs_version}')"
+%{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.v8, '%{v8_version}')"
+%{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.ares.replace(/-DEV$/, ''), '%{c_ares_version}')"
+%{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.http_parser, '%{http_parser_version}')"
+
+# Ensure we have punycode and that the version matches
+%{buildroot}/%{_bindir}/node -e "require(\"assert\").equal(require(\"punycode\").version, '%{punycode_version}')"
+
+
 %files
 %{_bindir}/node
 %{_mandir}/man1/node.*
@@ -233,6 +261,11 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 0.10.43-4
+- Verify that the built node reports the expected versions
+- Properly Provides: http-parser
+- Fix Provides: for punycode
+
 * Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 0.10.42-3
 - Remove duplicated content from spec file
 
