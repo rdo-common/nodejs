@@ -1,4 +1,4 @@
-%global with_debug 0
+%global with_debug 1
 
 # ARM builds currently break on the Debug builds, so we'll just
 # build the standard runtime until that gets sorted out.
@@ -32,7 +32,7 @@
 
 Name: nodejs
 Version: %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -241,6 +241,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 0.10.42-2
+- Re-enable debug builds on supported arches
+
 * Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 0.10.42-1
 - Update to Node.js 0.10.42
 - https://github.com/nodejs/node/blob/v0.10.42/ChangeLog
