@@ -12,7 +12,7 @@
 # == Node.js Version ==
 %global nodejs_major 0
 %global nodejs_minor 10
-%global nodejs_patch 42
+%global nodejs_patch 46
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
@@ -34,7 +34,7 @@
 
 # http-parser - from deps/http-parser/http_parser.h
 %global http_parser_major 1
-%global http_parser_minor 1
+%global http_parser_minor 2
 %global http_parser_version %{http_parser_major}.%{http_parser_minor}
 
 # punycode - from lib/punycode.js
@@ -46,7 +46,7 @@
 
 Name: nodejs
 Version: %{nodejs_version}
-Release: 4%{?dist}
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -263,6 +263,11 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Fri Jun 24 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 0.10.46-1
+- Update to 0.10.46(security fix)
+- https://github.com/nodejs/node/blob/v0.10.46/ChangeLog
+- Bump http-parser version
+
 * Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 0.10.43-4
 - Verify that the built node reports the expected versions
 - Properly Provides: http-parser
