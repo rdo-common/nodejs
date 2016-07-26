@@ -76,7 +76,8 @@ BuildRequires: libuv-devel >= 1.7.5
 Requires: libuv >= 1.7.5
 BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
-BuildRequires: openssl-devel >= 1:1.0.2
+BuildRequires: openssl-devel >= 1:1.0.1
+# FIXME: 1:1.0.2 is not in CentOS
 
 # we need the system certificate store when Patch2 is applied
 Requires: ca-certificates
