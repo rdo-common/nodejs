@@ -43,9 +43,20 @@
 %global punycode_patch 2
 %global punycode_version %{punycode_major}.%{punycode_minor}.%{punycode_patch}
 
+# npm - from deps/npm/package.json
+%global npm_major 2
+%global npm_minor 15
+%global npm_patch 8
+%global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
+
+# Filter out the NPM bundled dependencies so we aren't providing them
+%global __provides_exclude_from ^%{_prefix}/lib/node_modules/npm/.*$
+%global __requires_exclude_from ^%{_prefix}/lib/node_modules/npm/.*$
+
+
 Name: nodejs
 Version: %{nodejs_version}
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -125,6 +136,17 @@ Provides: bundled(v8) = %{v8_version}
 # do releases often and is almost always far behind the bundled version
 Provides: bundled(http-parser) = %{http_parser_version}
 
+# We used to ship npm separately, but it is so tightly integrated with Node.js
+# (and expected to be present on all Node.js systems) that we ship it bundled
+# now.
+Obsoletes: npm < 0:3.5.4-6
+Provides: npm = %{npm_version}
+
+# Do not add epoch to the virtual NPM provides or it will break
+# the automatic dependency-generation script.
+Provides: npm(npm) = %{npm_version}
+
+
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
 for easily building fast, scalable network applications.
@@ -158,8 +180,7 @@ The API documentation for the Node.js JavaScript runtime.
 
 # remove bundled dependencies that we aren't building
 %patch1 -p1
-rm -rf deps/npm \
-       deps/uv \
+rm -rf deps/uv \
        deps/zlib
 
 # Use openssl 1.0.1
@@ -180,7 +201,6 @@ export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
-           --without-npm \
            --without-dtrace
 
 %if %{?with_debug} == 1
@@ -232,6 +252,39 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 # Install the GDB init tool into the documentation directory
 mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 
+# Since the old version of NPM was unbundled, there are a lot of symlinks in
+# it's node_modules directory. We need to keep these as symlinks to ensure we
+# can backtrack on this if we decide to.
+
+# Rename the npm node_modules directory to node_modules.bundled
+mv %{buildroot}/%{_prefix}/lib/node_modules/npm/node_modules \
+   %{buildroot}/%{_prefix}/lib/node_modules/npm/node_modules.bundled
+
+# Recreate all the symlinks
+mkdir -p %{buildroot}/%{_prefix}/lib/node_modules/npm/node_modules
+FILES=%{buildroot}/%{_prefix}/lib/node_modules/npm/node_modules.bundled/*
+for f in $FILES
+do
+  module=`basename $f`
+  ln -s ../node_modules.bundled/$module %{buildroot}%{_prefix}/lib/node_modules/npm/node_modules/$module
+done
+
+# install NPM docs to mandir
+mkdir -p %{buildroot}%{_mandir} \
+         %{buildroot}%{_pkgdocdir}/npm
+
+cp -pr deps/npm/man/* %{buildroot}%{_mandir}/
+rm -rf %{buildroot}%{_prefix}/lib/node_modules/npm/man
+ln -sf %{_mandir}  %{buildroot}%{_prefix}/lib/node_modules/npm/man
+
+# Install Markdown and HTML documentation to %{_pkgdocdir}
+cp -pr deps/npm/html deps/npm/doc %{buildroot}%{_pkgdocdir}/npm/
+rm -rf %{buildroot}%{_prefix}/lib/node_modules/npm/html \
+       %{buildroot}%{_prefix}/lib/node_modules/npm/doc
+
+ln -sf %{_pkgdocdir} %{buildroot}%{_prefix}/lib/node_modules/npm/html
+ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
+
 
 %check
 # Fail the build if the versions don't match
@@ -257,7 +310,13 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %license LICENSE
 %doc AUTHORS CHANGELOG.md COLLABORATOR_GUIDE.md GOVERNANCE.md README.md
 %doc ROADMAP.md WORKING_GROUPS.md
- 
+%{_prefix}/lib/node_modules/npm
+%ghost %{_sysconfdir}/npmrc
+%ghost %{_sysconfdir}/npmignore
+%{_bindir}/npm
+%{_mandir}/man*/*
+
+
 %files devel
 %if %{?with_debug} == 1
 %{_bindir}/node_g
@@ -269,8 +328,13 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %files docs
 %dir %{_pkgdocdir}
 %{_pkgdocdir}/html
+%{_pkgdocdir}/npm/html
+%{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Jul 26 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 4.4.7-2
+- Bundle npm (backport from F24)
+
 * Tue Jul 26 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 4.4.7-1
 - Upstream 4.4.7
 
