@@ -1,3 +1,4 @@
+%{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}}
 %global with_debug 1
 
 # ARM builds currently break on the Debug builds, so we'll just
@@ -9,7 +10,7 @@
 # == Node.js Version ==
 %global nodejs_major 4
 %global nodejs_minor 4
-%global nodejs_patch 1
+%global nodejs_patch 7
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
@@ -18,7 +19,7 @@
 %global v8_major 4
 %global v8_minor 5
 %global v8_build 103
-%global v8_patch 35
+%global v8_patch 36
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -64,12 +65,14 @@ Source100: %{name}-tarball.sh
 Source7: nodejs_native.attr
 
 # Disable running gyp on bundled deps we don't use
-Patch1: nodejs-disable-gyp-deps.patch
+Patch1: 0001-disable-running-gyp-files-for-bundled-deps.patch
 
 # use system certificates instead of the bundled ones
 # modified version of Debian patch:
 # http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
-Patch2: nodejs-use-system-certs.patch
+Patch2: 0003-CA-Certificates-are-provided-by-Fedora.patch
+
+Patch3: 0002-Use-openssl-1.0.1.patch
 
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1.7.5
@@ -159,10 +162,12 @@ rm -rf deps/npm \
        deps/uv \
        deps/zlib
 
+# Use openssl 1.0.1
+%patch3 -p1
+
 # remove bundled CA certificates
 %patch2 -p1
 rm -f src/node_root_certs.h
-
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
@@ -266,6 +271,9 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Tue Jul 26 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 4.4.7-1
+- Upstream 4.4.7
+
 * Wed Mar 23 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.4.1-1
 - Update to 4.4.1 upstream LTS release
 - Add more versatile ABI checking
