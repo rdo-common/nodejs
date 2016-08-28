@@ -1,4 +1,4 @@
-From 24058e81516b58785f8ba21bd4b9bc95485fb308 Mon Sep 17 00:00:00 2001
+From 137da65e0937d5e7b42964cb2021b8dd2ee49744 Mon Sep 17 00:00:00 2001
 From: Haikel Guemar <hguemar@fedoraproject.org>
 Date: Tue, 26 Jul 2016 22:00:25 +0200
 Subject: [PATCH 3/3] CA Certificates are provided by Fedora.
@@ -26,10 +26,10 @@ Node.js 4.4.7
  1 file changed, 10 insertions(+), 22 deletions(-)
 
 diff --git a/src/node_crypto.cc b/src/node_crypto.cc
-index 903d30b..915fb4c 100644
+index 7bded58..1b4f889 100644
 --- a/src/node_crypto.cc
 +++ b/src/node_crypto.cc
-@@ -197,8 +197,8 @@ static X509_NAME *cnnic_ev_name =
+@@ -193,8 +193,8 @@ static X509_NAME *cnnic_ev_name =
  
  static uv_mutex_t* locks;
  
@@ -40,7 +40,7 @@ index 903d30b..915fb4c 100644
  };
  
  X509_STORE* root_cert_store;
-@@ -871,29 +871,17 @@ void SecureContext::AddRootCerts(const FunctionCallbackInfo<Value>& args) {
+@@ -867,29 +867,17 @@ void SecureContext::AddRootCerts(const FunctionCallbackInfo<Value>& args) {
    CHECK_EQ(sc->ca_store_, nullptr);
  
    if (!root_cert_store) {

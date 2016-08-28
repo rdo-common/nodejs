@@ -9,8 +9,8 @@
 
 # == Node.js Version ==
 %global nodejs_major 4
-%global nodejs_minor 4
-%global nodejs_patch 7
+%global nodejs_minor 5
+%global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
@@ -19,7 +19,7 @@
 %global v8_major 4
 %global v8_minor 5
 %global v8_build 103
-%global v8_patch 36
+%global v8_patch 37
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -32,8 +32,8 @@
 
 # http-parser - from deps/http-parser/http_parser.h
 %global http_parser_major 2
-%global http_parser_minor 5
-%global http_parser_patch 2
+%global http_parser_minor 7
+%global http_parser_patch 0
 %global http_parser_version %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
 
 # punycode - from lib/punycode.js
@@ -46,7 +46,7 @@
 # npm - from deps/npm/package.json
 %global npm_major 2
 %global npm_minor 15
-%global npm_patch 8
+%global npm_patch 9
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # Filter out the NPM bundled dependencies so we aren't providing them
@@ -56,7 +56,7 @@
 
 Name: nodejs
 Version: %{nodejs_version}
-Release: 2%{?dist}
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -332,6 +332,9 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Sun Aug 28 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 4.5.0-1
+- Upstream 4.5.0
+
 * Tue Jul 26 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 4.4.7-2
 - Bundle npm (backport from F24)
 
