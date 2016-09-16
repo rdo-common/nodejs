@@ -65,7 +65,7 @@ Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: 104%{?dist}
+Release: 105%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -385,7 +385,7 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
-* Fri Sep 16 2016 Stephen Gallagher <sgallagh@redhat.com> - -104
+* Fri Sep 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.6.0-105
 - Update to 6.6.0
 - https://github.com/nodejs/node/blob/v6.6.0/doc/changelogs/CHANGELOG_V6.md#6.6.0
 
