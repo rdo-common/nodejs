@@ -65,7 +65,7 @@ Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: 105%{?dist}
+Release: 106%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -162,7 +162,6 @@ Provides: bundled(http-parser) = %{http_parser_version}
 Requires: npm = %{npm_epoch}:%{npm_version}-%{release}
 %else
 Recommends: npm = %{npm_epoch}:%{npm_version}-%{release}
-Conflicts: npm < %{npm_epoch}:%{npm_version}-%{release}
 %endif
 
 
@@ -359,10 +358,7 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %license LICENSE
 %doc AUTHORS CHANGELOG.md COLLABORATOR_GUIDE.md GOVERNANCE.md README.md
 %doc ROADMAP.md WORKING_GROUPS.md
-%{_prefix}/lib/node_modules/npm
-%ghost %{_sysconfdir}/npmrc
-%ghost %{_sysconfdir}/npmignore
-%{_mandir}/man*/*
+%doc %{_mandir}/man*/*
 
 
 %files devel
@@ -376,7 +372,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 
 %files -n npm
 %{_bindir}/npm
-
+%{_prefix}/lib/node_modules/npm
+%ghost %{_sysconfdir}/npmrc
+%ghost %{_sysconfdir}/npmignore
 
 %files docs
 %dir %{_pkgdocdir}
@@ -385,6 +383,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Fri Sep 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.6.0-106
+- Drop Conflicts: from main package.
+  It wasn't needed and was breaking upgrades in some cases.
+- Move npm support files into the npm package
+- Mark manpages as %%doc
+
 * Fri Sep 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.6.0-105
 - Update to 6.6.0
 - https://github.com/nodejs/node/blob/v6.6.0/doc/changelogs/CHANGELOG_V6.md#6.6.0
