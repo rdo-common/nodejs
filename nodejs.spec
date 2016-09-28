@@ -14,7 +14,7 @@
 # feature releases that are only supported for nine months, which is shorter
 # than a Fedora release lifecycle.
 %global nodejs_major 6
-%global nodejs_minor 6
+%global nodejs_minor 7
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
@@ -65,7 +65,7 @@ Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: 106%{?dist}
+Release: 107%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -383,6 +383,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Sep 27 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.7.0-107
+- Update to 6.7.0
+- https://nodejs.org/en/blog/release/v6.7.0/
+
 * Fri Sep 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.6.0-106
 - Drop Conflicts: from main package.
   It wasn't needed and was breaking upgrades in some cases.
