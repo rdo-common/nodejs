@@ -73,7 +73,7 @@ Name: nodejs
 Epoch: %{nodejs_epoch}
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: %{nodejs_release}%{?dist}.3
+Release: %{nodejs_release}%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
