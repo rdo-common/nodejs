@@ -13,18 +13,20 @@
 # to be major versions with even numbers). The odd-numbered versions are new
 # feature releases that are only supported for nine months, which is shorter
 # than a Fedora release lifecycle.
+%global nodejs_epoch 1
 %global nodejs_major 6
-%global nodejs_minor 7
-%global nodejs_patch 0
+%global nodejs_minor 8
+%global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
+%global nodejs_release 1
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 5
 %global v8_minor 1
 %global v8_build 281
-%global v8_patch 83
+%global v8_patch 84
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -53,8 +55,14 @@
 %global npm_epoch 1
 %global npm_major 3
 %global npm_minor 10
-%global npm_patch 3
+%global npm_patch 8
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
+
+# In order to avoid needing to keep incrementing the release version for the
+# main package forever, we will just construct one for npm that is guaranteed
+# to increment safely. Changing this can only be done during an update when the
+# base npm version number is increasing.
+%global npm_release %{nodejs_epoch}.%{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}.%{nodejs_release}
 
 # Filter out the NPM bundled dependencies so we aren't providing them
 %global __provides_exclude_from ^%{_prefix}/lib/node_modules/npm/.*$
@@ -62,10 +70,10 @@
 
 
 Name: nodejs
-Epoch: 1
+Epoch: %{nodejs_epoch}
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: 107%{?dist}
+Release: %{nodejs_release}%{?dist}.3
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -106,7 +114,11 @@ BuildRequires: gcc-c++ >= 4.8.0
 %if 0%{?epel}
 BuildRequires: openssl-devel >= 1:1.0.1
 %else
+%if 0%{?fedora} > 25
+BuildRequires: compat-openssl10-devel >= 1:1.0.2
+%else
 BuildRequires: openssl-devel >= 1:1.0.2
+%endif
 %endif
 
 # we need the system certificate store when Patch2 is applied
@@ -159,9 +171,9 @@ Provides: bundled(http-parser) = %{http_parser_version}
 # Make sure we keep NPM up to date when we update Node.js
 %if 0%{?epel}
 # EPEL doesn't support Recommends, so make it strict
-Requires: npm = %{npm_epoch}:%{npm_version}-%{release}
+Requires: npm = %{npm_epoch}:%{npm_version}-%{npm_release}
 %else
-Recommends: npm = %{npm_epoch}:%{npm_version}-%{release}
+Recommends: npm = %{npm_epoch}:%{npm_version}-%{npm_release}
 %endif
 
 
@@ -188,6 +200,7 @@ Development headers for the Node.js JavaScript runtime.
 Summary: Node.js Package Manager
 Epoch: %{npm_epoch}
 Version: %{npm_version}
+Release: %{npm_release}
 
 # We used to ship npm separately, but it is so tightly integrated with Node.js
 # (and expected to be present on all Node.js systems) that we ship it bundled
@@ -240,8 +253,16 @@ rm -f src/node_root_certs.h
 # build with debugging symbols and add defines from libuv (#892601)
 # Node's v8 breaks with GCC 6 because of incorrect usage of methods on
 # NULL objects. We need to pass -fno-delete-null-pointer-checks
-export CFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-delete-null-pointer-checks'
-export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-delete-null-pointer-checks'
+export CFLAGS='%{optflags} -g \
+               -D_LARGEFILE_SOURCE \
+               -D_FILE_OFFSET_BITS=64 \
+               -DZLIB_CONST \
+               -fno-delete-null-pointer-checks'
+export CXXFLAGS='%{optflags} -g \
+                 -D_LARGEFILE_SOURCE \
+                 -D_FILE_OFFSET_BITS=64 \
+                 -DZLIB_CONST \
+                 -fno-delete-null-pointer-checks'
 
 ./configure --prefix=%{_prefix} \
            --shared-openssl \
@@ -383,6 +404,13 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Sat Oct 15 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.8.1-1
+- Update node to v6.8.0
+- Fix FTBFS against non-bundled zlib
+
+* Thu Oct 13 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.8.0-108
+- Update node to v6.8.0 and npm@3.10.8
+
 * Tue Sep 27 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.7.0-107
 - Update to 6.7.0
 - https://nodejs.org/en/blog/release/v6.7.0/
