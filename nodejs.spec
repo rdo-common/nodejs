@@ -19,7 +19,7 @@
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 3
+%global nodejs_release 4
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -72,7 +72,6 @@
 Name: nodejs
 Epoch: %{nodejs_epoch}
 Version: %{nodejs_version}
-# Keep this release > 100 for F25+ due to a complicated npm upgrade bug
 Release: %{nodejs_release}%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
@@ -207,7 +206,7 @@ Release: %{npm_release}%{?dist}
 # now.
 Obsoletes: npm < 0:3.5.4-6
 Provides: npm = %{npm_epoch}:%{npm_version}
-Requires: nodejs = %{epoch}:%{nodejs_version}-%{release}
+Requires: nodejs = %{epoch}:%{nodejs_version}-%{nodejs_release}
 
 # Do not add epoch to the virtual NPM provides or it will break
 # the automatic dependency-generation script.
@@ -225,8 +224,8 @@ BuildArch: noarch
 # We don't require that the main package be installed to
 # use the docs, but if it is installed, make sure the
 # version always matches
-Conflicts: %{name} > %{epoch}:%{nodejs_version}-%{release}
-Conflicts: %{name} < %{epoch}:%{nodejs_version}-%{release}
+Conflicts: %{name} > %{epoch}:%{nodejs_version}-%{nodejs_release}
+Conflicts: %{name} < %{epoch}:%{nodejs_version}-%{nodejs_release}
 
 %description docs
 The API documentation for the Node.js JavaScript runtime.
@@ -404,6 +403,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Oct 17 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.8.1-4
+- Fix typo in npm nodejs dependency
+
 * Sat Oct 15 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.8.1-3
 - Bump release version for tagging bug
 
