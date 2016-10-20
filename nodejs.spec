@@ -16,7 +16,7 @@
 %global nodejs_epoch 1
 %global nodejs_major 6
 %global nodejs_minor 9
-%global nodejs_patch 0
+%global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -403,6 +403,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Oct 20 2016 Stephen Gallagher <sgallagh@redhat.com> - -
+- Update to 6.9.1 LTS release
+- Fix a regression introduced in v6.8.0 in readable stream that caused unpipe
+  to remove the wrong stream
+- https://nodejs.org/en/blog/release/v6.9.1/
+
 * Tue Oct 18 2016 Stephen Gallagher <sgallagh@redhat.com> - -
 - Update to 6.9.0 LTS release
 - https://nodejs.org/en/blog/release/v6.9.0/
