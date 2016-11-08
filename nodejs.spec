@@ -19,7 +19,7 @@
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 4
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -144,7 +144,7 @@ Conflicts: node <= 0.3.2-12
 # we don't need the seperate nodejs-punycode package, so we Provide it here so
 # dependent packages don't need to override the dependency generator.
 # See also: RHBZ#11511811
-# UPDATE: punycode will be deprecated and so we should unbundle it in Node v8 
+# UPDATE: punycode will be deprecated and so we should unbundle it in Node v8
 # and use upstream module instead
 # https://github.com/nodejs/node/commit/29e49fc286080215031a81effbd59eac092fff2f
 Provides: nodejs-punycode = %{punycode_version}
@@ -170,9 +170,9 @@ Provides: bundled(http-parser) = %{http_parser_version}
 # Make sure we keep NPM up to date when we update Node.js
 %if 0%{?epel}
 # EPEL doesn't support Recommends, so make it strict
-Requires: npm = %{npm_epoch}:%{npm_version}-%{npm_release}
+Requires: npm = %{npm_epoch}:%{npm_version}-%{npm_release}%{?dist}
 %else
-Recommends: npm = %{npm_epoch}:%{npm_version}-%{npm_release}
+Recommends: npm = %{npm_epoch}:%{npm_version}-%{npm_release}%{?dist}
 %endif
 
 
@@ -186,7 +186,7 @@ real-time applications that run across distributed devices.
 %package devel
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
-Requires: %{name}%{?_isa} = %{epoch}:%{nodejs_version}-%{release}
+Requires: %{name}%{?_isa} = %{epoch}:%{nodejs_version}-%{nodejs_release}%{?dist}
 Requires: libuv-devel%{?_isa}
 Requires: openssl-devel%{?_isa}
 Requires: zlib-devel%{?_isa}
@@ -224,8 +224,8 @@ BuildArch: noarch
 # We don't require that the main package be installed to
 # use the docs, but if it is installed, make sure the
 # version always matches
-Conflicts: %{name} > %{epoch}:%{nodejs_version}-%{release}
-Conflicts: %{name} < %{epoch}:%{nodejs_version}-%{release}
+Conflicts: %{name} > %{epoch}:%{nodejs_version}-%{nodejs_release}%{?dist}
+Conflicts: %{name} < %{epoch}:%{nodejs_version}-%{nodejs_release}%{?dist}
 
 %description docs
 The API documentation for the Node.js JavaScript runtime.
@@ -403,7 +403,13 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
-* Thu Oct 20 2016 Stephen Gallagher <sgallagh@redhat.com> - -
+* Tue Nov 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-4
+- Fix incorrect Conflicts for nodejs-docs
+
+* Tue Nov 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-2
+- Bump revision and rebuild for s390x
+
+* Thu Oct 20 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-1
 - Update to 6.9.1 LTS release
 - Fix a regression introduced in v6.8.0 in readable stream that caused unpipe
   to remove the wrong stream
