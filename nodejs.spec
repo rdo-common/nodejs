@@ -16,17 +16,17 @@
 %global nodejs_epoch 1
 %global nodejs_major 6
 %global nodejs_minor 9
-%global nodejs_patch 1
+%global nodejs_patch 2
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 4
+%global nodejs_release 1
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 5
 %global v8_minor 1
 %global v8_build 281
-%global v8_patch 84
+%global v8_patch 88
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -55,7 +55,7 @@
 %global npm_epoch 1
 %global npm_major 3
 %global npm_minor 10
-%global npm_patch 8
+%global npm_patch 9
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # In order to avoid needing to keep incrementing the release version for the
@@ -403,6 +403,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Dec 08 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.9.2-1
+- Update to v6.9.2
+
 * Tue Nov 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-4
 - Fix incorrect Conflicts for nodejs-docs
 
