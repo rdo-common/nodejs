@@ -19,7 +19,7 @@
 %global nodejs_patch 4
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -109,6 +109,7 @@ BuildRequires: libicu-devel
 BuildRequires: zlib-devel
 BuildRequires: gcc >= 4.8.0
 BuildRequires: gcc-c++ >= 4.8.0
+BuildRequires: systemtap-sdt-devel
 
 %if 0%{?epel}
 BuildRequires: openssl-devel >= 1:1.0.1
@@ -263,11 +264,15 @@ export CXXFLAGS='%{optflags} -g \
                  -DZLIB_CONST \
                  -fno-delete-null-pointer-checks'
 
+# Explicit new lines in C(XX)FLAGS can break naive build scripts
+export CFLAGS="$(echo ${CFLAGS} | tr '\n\\' '  ')"
+export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
+
 ./configure --prefix=%{_prefix} \
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
-           --without-dtrace \
+           --with-dtrace \
            --with-intl=system-icu
 
 %if %{?with_debug} == 1
@@ -282,9 +287,6 @@ make BUILDTYPE=Release %{?_smp_mflags}
 rm -rf %{buildroot}
 
 ./tools/install.py install %{buildroot} %{_prefix}
-
-# and remove dtrace file again
-rm -rf %{buildroot}/%{_prefix}/lib/dtrace
 
 # Set the binary permissions properly
 chmod 0755 %{buildroot}/%{_bindir}/node
@@ -373,6 +375,8 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %dir %{_datadir}/systemtap
 %dir %{_datadir}/systemtap/tapset
 %{_datadir}/systemtap/tapset/node.stp
+%dir %{_usr}/lib/dtrace
+%{_usr}/lib/dtrace/node.d
 %{_rpmconfigdir}/fileattrs/nodejs_native.attr
 %{_rpmconfigdir}/nodejs_native.req
 %license LICENSE
@@ -403,6 +407,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Jan 17 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.4-2
+- Enable DTrace support.
+- Eliminate newlines from CFLAGS due to broken dtrace shim
+  https://sourceware.org/bugzilla/show_bug.cgi?id=21063
+  Thanks to Kinston Hughes for the fix.
+
 * Tue Jan 10 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.9.4-1
 - Update to v6.9.4
 
