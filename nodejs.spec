@@ -15,8 +15,8 @@
 # than a Fedora release lifecycle.
 %global nodejs_epoch 1
 %global nodejs_major 6
-%global nodejs_minor 9
-%global nodejs_patch 5
+%global nodejs_minor 10
+%global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -26,7 +26,7 @@
 %global v8_major 5
 %global v8_minor 1
 %global v8_build 281
-%global v8_patch 89
+%global v8_patch 93
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -98,9 +98,12 @@ Patch1: 0001-disable-running-gyp-files-for-bundled-deps.patch
 Patch2: 0002-Use-openssl-1.0.1.patch
 
 # use system certificates instead of the bundled ones
-# modified version of Debian patch:
-# http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
-Patch3: 0003-CA-Certificates-are-provided-by-Fedora.patch
+# Backported from upstream 7.5.0+
+Patch3: 0003-crypto-Use-system-CAs-instead-of-using-bundled-ones.patch
+
+# Patch to allow building with GCC 7 from
+# https://github.com/nodejs/node/issues/10388#issuecomment-283120731
+Patch4: 0004-Fix-compatibility-with-GCC-7.patch
 
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1:1.9.1
@@ -240,9 +243,11 @@ The API documentation for the Node.js JavaScript runtime.
 rm -rf deps/uv \
        deps/zlib
 
-# remove bundled CA certificates
-rm -f src/node_root_certs.h
+# Use system CA certificates
 %patch3 -p1
+
+# Fix GCC7 build
+%patch4 -p1
 
 %if 0%{?epel}
 %patch2 -p1
@@ -272,8 +277,9 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
-           --with-dtrace \
-           --with-intl=system-icu
+           --without-dtrace \
+           --with-intl=system-icu \
+           --openssl-use-def-ca-store
 
 %if %{?with_debug} == 1
 # Setting BUILDTYPE=Debug builds both release and debug binaries
@@ -407,6 +413,18 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Mar 09 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.0-1
+- Update to 6.10.0
+- https://nodejs.org/en/blog/release/v6.10.0/
+- New patch for handling system CA certificates
+
+* Tue Feb 28 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.5-2
+- Fix FTBFS against GCC 7
+- Resolves: RHBZ 1423991
+
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1:6.9.5-1.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Wed Feb 1 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.9.5-1
 - Update to v6.9.5(security)
 - Reenable debug mode (https://github.com/nodejs/node/pull/10525)

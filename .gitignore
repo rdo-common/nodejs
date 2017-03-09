@@ -32,8 +32,6 @@
 /node-v0.10.32-stripped.tar.gz
 /node-v0.10.33-stripped.tar.gz
 /node-v0.10.36-stripped.tar.gz
-/node-v0.10.42-stripped.tar.gz
-/node-v0.10.46-stripped.tar.gz
 /node-v4.2.2-stripped.tar.gz
 /node-v4.2.3-stripped.tar.gz
 /node-v4.2.4-stripped.tar.gz
@@ -65,3 +63,4 @@
 /node-v6.9.3-stripped.tar.gz
 /node-v6.9.4-stripped.tar.gz
 /node-v6.9.5-stripped.tar.gz
+/node-v6.10.0-stripped.tar.gz
