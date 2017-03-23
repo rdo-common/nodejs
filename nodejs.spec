@@ -1,4 +1,4 @@
-%global with_debug 0
+%global with_debug 1
 
 %{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
@@ -16,7 +16,7 @@
 %global nodejs_epoch 1
 %global nodejs_major 6
 %global nodejs_minor 10
-%global nodejs_patch 0
+%global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -26,7 +26,7 @@
 %global v8_major 5
 %global v8_minor 1
 %global v8_build 281
-%global v8_patch 93
+%global v8_patch 95
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -92,7 +92,7 @@ Source100: %{name}-tarball.sh
 Source7: nodejs_native.attr
 
 # Disable running gyp on bundled deps we don't use
-Patch1: 0001-disable-running-gyp-files-for-bundled-deps.patch
+Patch1: 0001-Disable-running-gyp-files-for-bundled-deps.patch
 
 # EPEL only has OpenSSL 1.0.1, so we need to carry a patch on that platform
 Patch2: 0002-Use-openssl-1.0.1.patch
@@ -240,7 +240,8 @@ The API documentation for the Node.js JavaScript runtime.
 
 # remove bundled dependencies that we aren't building
 %patch1 -p1
-rm -rf deps/uv \
+rm -rf deps/icu-small \
+       deps/uv \
        deps/zlib
 
 # Use system CA certificates
@@ -411,6 +412,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Mar 22 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.10.1-1
+- Update to 6.10.1
+- remove small-icu from deps
+
 * Thu Mar 09 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.0-1
 - Update to 6.10.0
 - https://nodejs.org/en/blog/release/v6.10.0/
