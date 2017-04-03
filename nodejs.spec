@@ -19,7 +19,7 @@
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -104,6 +104,10 @@ Patch3: 0003-crypto-Use-system-CAs-instead-of-using-bundled-ones.patch
 # Patch to allow building with GCC 7 from
 # https://github.com/nodejs/node/issues/10388#issuecomment-283120731
 Patch4: 0004-Fix-compatibility-with-GCC-7.patch
+
+# RHEL 7 still uses OpenSSL 1.0.1 for now, and it segfaults on SSL
+# Revert this upstream patch until RHEL 7 upgrades to 1.0.2
+Patch5: EPEL01-openssl101-compat.patch
 
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1:1.9.1
@@ -252,6 +256,7 @@ rm -rf deps/icu-small \
 
 %if 0%{?epel}
 %patch2 -p1
+%patch5 -p1
 %endif
 
 
@@ -412,6 +417,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Apr 03 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.1-2
+- Revert upstream change that is incompatible with OpenSSL 1.0.1
+- Fixes: rhbz#1436445
+
 * Wed Mar 22 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.10.1-1
 - Update to 6.10.1
 - remove small-icu from deps
