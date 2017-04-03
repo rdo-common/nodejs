@@ -392,7 +392,7 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %license LICENSE
 %doc AUTHORS CHANGELOG.md COLLABORATOR_GUIDE.md GOVERNANCE.md README.md
 %doc ROADMAP.md WORKING_GROUPS.md
-%doc %{_mandir}/man*/*
+%doc %{_mandir}/man1/node.1*
 
 
 %files devel
@@ -409,6 +409,11 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_prefix}/lib/node_modules/npm
 %ghost %{_sysconfdir}/npmrc
 %ghost %{_sysconfdir}/npmignore
+%doc %{_mandir}/man*/npm*
+%doc %{_mandir}/man5/package.json.5*
+%doc %{_mandir}/man7/removing-npm.7*
+%doc %{_mandir}/man7/semver.7*
+
 
 %files docs
 %dir %{_pkgdocdir}
@@ -417,6 +422,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Apr 03 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.1-3
+- Move NPM manpages into the correct subpackage
+- Fixes: rhbx#1433403
+
 * Mon Apr 03 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.1-2
 - Revert upstream change that is incompatible with OpenSSL 1.0.1
 - Fixes: rhbz#1436445
