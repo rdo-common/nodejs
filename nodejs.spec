@@ -1,3 +1,7 @@
+# fake EPEL in RDO
+%global nodejs_arches      %{ix86} x86_64 %{arm} aarch64
+# end fake EPEL
+
 %global with_debug 1
 
 # bundle dependencies that are not available as Fedora modules
