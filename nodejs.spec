@@ -1,3 +1,8 @@
+# fake EPEL in RDO
+%global epel 7
+%global nodejs_arches      %{ix86} x86_64 %{arm} aarch64
+# end fake EPEL
+
 %global with_debug 1
 
 %{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
