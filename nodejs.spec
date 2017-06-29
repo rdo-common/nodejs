@@ -15,8 +15,8 @@
 # than a Fedora release lifecycle.
 %global nodejs_epoch 1
 %global nodejs_major 6
-%global nodejs_minor 10
-%global nodejs_patch 3
+%global nodejs_minor 11
+%global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -26,7 +26,7 @@
 %global v8_major 5
 %global v8_minor 1
 %global v8_build 281
-%global v8_patch 101
+%global v8_patch 102
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -93,7 +93,8 @@ Patch2: 0002-Use-openssl-1.0.1.patch
 
 # use system certificates instead of the bundled ones
 # Backported from upstream 7.5.0+
-Patch3: 0003-crypto-Use-system-CAs-instead-of-using-bundled-ones.patch
+# merged in 6.11.0
+#Patch3: 0003-crypto-Use-system-CAs-instead-of-using-bundled-ones.patch
 
 # Backported upstream patch to allow building with GCC 7 from
 # https://github.com/nodejs/node/commit/2bbee49e6f170a5d6628444a7c9a2235fe0dd929
@@ -106,6 +107,7 @@ Patch5: EPEL01-openssl101-compat.patch
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1:1.9.1
 Requires: libuv >= 1:1.9.1
+Requires: http-parser >= 2.7.0
 BuildRequires: libicu-devel
 BuildRequires: zlib-devel
 BuildRequires: gcc >= 4.8.0
@@ -186,6 +188,7 @@ Summary: JavaScript runtime - development headers
 Group: Development/Languages
 Requires: %{name}%{?_isa} = %{epoch}:%{nodejs_version}-%{nodejs_release}%{?dist}
 Requires: libuv-devel%{?_isa}
+Requires: http-parser-devel${?_isa}
 Requires: openssl-devel%{?_isa}
 Requires: zlib-devel%{?_isa}
 Requires: nodejs-packaging
@@ -240,7 +243,7 @@ rm -rf deps/http-parser \
        deps/zlib
 
 # Use system CA certificates
-%patch3 -p1
+#%patch3 -p1
 
 # Fix GCC7 build
 %patch4 -p1
@@ -418,6 +421,11 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Jun 29 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.11.0-1
+- Update to 6.11.0
+- https://nodejs.org/en/blog/release/v6.10.3/
+- explicitly depend on http-parser (RHBZ#1457763)
+
 * Wed May 10 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.3-1
 - Update to 6.10.3 (LTS)
 - https://nodejs.org/en/blog/release/v6.10.3/
