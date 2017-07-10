@@ -19,7 +19,7 @@
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -188,7 +188,7 @@ Summary: JavaScript runtime - development headers
 Group: Development/Languages
 Requires: %{name}%{?_isa} = %{epoch}:%{nodejs_version}-%{nodejs_release}%{?dist}
 Requires: libuv-devel%{?_isa}
-Requires: http-parser-devel${?_isa}
+Requires: http-parser-devel%{?_isa}
 Requires: openssl-devel%{?_isa}
 Requires: zlib-devel%{?_isa}
 Requires: nodejs-packaging
@@ -421,6 +421,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Jun 29 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.11.0-2
+- Fix typo
+
 * Thu Jun 29 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.11.0-1
 - Update to 6.11.0
 - https://nodejs.org/en/blog/release/v6.10.3/
