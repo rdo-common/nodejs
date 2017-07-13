@@ -16,17 +16,17 @@
 %global nodejs_epoch 1
 %global nodejs_major 6
 %global nodejs_minor 11
-%global nodejs_patch 0
+%global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 2
+%global nodejs_release 1
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 5
 %global v8_minor 1
 %global v8_build 281
-%global v8_patch 102
+%global v8_patch 103
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -421,6 +421,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Jul 13 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.11.1-1
+- Security update (https://nodejs.org/en/blog/vulnerability/july-2017-security-releases/)
+
 * Thu Jun 29 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.11.0-2
 - Fix typo
 
