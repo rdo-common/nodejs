@@ -114,7 +114,7 @@ BuildRequires: gcc >= 4.8.0
 BuildRequires: gcc-c++ >= 4.8.0
 BuildRequires: http-parser-devel >= 2.7.0
 
-%if 0%{?epel}
+%if 0%{?epel} || 0%{?rhel}
 BuildRequires: openssl-devel >= 1:1.0.1
 %else
 %if 0%{?fedora} > 25
@@ -168,7 +168,7 @@ Provides: bundled(c-ares) = %{c_ares_version}
 Provides: bundled(v8) = %{v8_version}
 
 # Make sure we keep NPM up to date when we update Node.js
-%if 0%{?epel}
+%if 0%{?epel} || 0%{?rhel}
 # EPEL doesn't support Recommends, so make it strict
 Requires: npm = %{npm_epoch}:%{npm_version}-%{npm_release}%{?dist}
 %else
@@ -248,7 +248,7 @@ rm -rf deps/http-parser \
 # Fix GCC7 build
 %patch4 -p1
 
-%if 0%{?epel}
+%if 0%{?epel} || 0%{?rhel}
 %patch2 -p1
 %patch5 -p1
 %endif
