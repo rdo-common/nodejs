@@ -1,5 +1,5 @@
 # fake EPEL in RDO
-%global nodejs_arches      %{ix86} x86_64 %{arm} aarch64
+%global nodejs_arches      %{ix86} x86_64 %{arm} aarch64 %{power64}
 # end fake EPEL
 
 %global with_debug 1
@@ -23,7 +23,7 @@
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
