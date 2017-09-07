@@ -21,7 +21,7 @@
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -113,15 +113,7 @@ Requires: http-parser >= 2.7.0
 Provides: bundled(http-parser) = %{http_parser_version}
 %endif
 
-%if 0%{?epel}
-BuildRequires: openssl-devel >= 1:1.0.1
-%else
-%if 0%{?fedora} > 25
-BuildRequires: compat-openssl10-devel >= 1:1.0.2
-%else
-BuildRequires: openssl-devel >= 1:1.0.2
-%endif
-%endif
+BuildRequires: (openssl-devel >= 1:1.0.2 or compat-openssl10-devel)
 
 # we need the system certificate store when Patch2 is applied
 Requires: ca-certificates
@@ -246,12 +238,6 @@ The API documentation for the Node.js JavaScript runtime.
 rm -rf deps/icu-small \
        deps/uv \
        deps/zlib
-
-%if 0%{?epel}
-%patch2 -p1
-%patch5 -p1
-%endif
-
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
@@ -444,6 +430,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Sep 07 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.4.0-2
+- Refactor openssl BR
+
 * Wed Aug 16 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.4.0-1
 - Update to v8.4.0
 - https://nodejs.org/en/blog/release/v8.4.0/
