@@ -113,7 +113,7 @@ Requires: http-parser >= 2.7.0
 Provides: bundled(http-parser) = %{http_parser_version}
 %endif
 
-BuildRequires: (openssl-devel >= 1:1.0.2 or compat-openssl10-devel)
+BuildRequires: (openssl-devel <= 1:1.1.0 or compat-openssl10-devel)
 
 # we need the system certificate store when Patch2 is applied
 Requires: ca-certificates
