@@ -4,10 +4,11 @@
 
 %{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
-# ARM builds currently break on the Debug builds, so we'll just
+# ARM64 builds of 8.5.0 break on the Debug builds, so we'll just
 # build the standard runtime until that gets sorted out.
-%ifarch %{arm} aarch64 %{power64}
-%global with_debug 1
+# https://github.com/nodejs/node/issues/15395
+%ifarch aarch64
+%global with_debug 0
 %endif
 
 # == Node.js Version ==
@@ -21,7 +22,7 @@
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -430,6 +431,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Sep 13 2017 Stephen Gallagher <sgallagh@redhat.com> - -
+- Disable debug builds on aarch64 due to https://github.com/nodejs/node/issues/15395
+
 * Tue Sep 12 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.5.0-1
 - Update to v8.5.0
 - https://nodejs.org/en/blog/release/v8.5.0/
