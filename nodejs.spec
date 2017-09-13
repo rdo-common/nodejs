@@ -17,11 +17,11 @@
 # than a Fedora release lifecycle.
 %global nodejs_epoch 1
 %global nodejs_major 8
-%global nodejs_minor 4
+%global nodejs_minor 5
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 2
+%global nodejs_release 1
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -430,6 +430,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Sep 12 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.5.0-1
+- Update to v8.5.0
+- https://nodejs.org/en/blog/release/v8.5.0/
+
 * Thu Sep 07 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.4.0-2
 - Refactor openssl BR
 
