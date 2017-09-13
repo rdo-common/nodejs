@@ -27,8 +27,8 @@
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 6
 %global v8_minor 0
-%global v8_build 286
-%global v8_patch 52
+%global v8_build 287
+%global v8_patch 53
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
