@@ -121,7 +121,7 @@ BuildRequires: libuv-devel >= 1:1.9.1
 Requires: libuv >= 1:1.9.1
 %else
 Provides: bundled(http-parser) = %{http_parser_version}
-Provides" bundled(libuv) = %{libuv_version}
+Provides: bundled(libuv) = %{libuv_version}
 %endif
 
 BuildRequires: (openssl-devel <= 1:1.1.0 or compat-openssl10-devel)
