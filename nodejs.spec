@@ -1,6 +1,7 @@
 %global with_debug 1
 
-%{!?_with_bootstrap: %global bootstrap 0}
+# bundle dependencies that are not available as Fedora modules
+%{!?_with_bootstrap: %global bootstrap 1}
 
 %{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
@@ -8,7 +9,7 @@
 # build the standard runtime until that gets sorted out.
 # https://github.com/nodejs/node/issues/15395
 %ifarch aarch64
-%global with_debug 0
+%global with_debug 1
 %endif
 
 # == Node.js Version ==
@@ -22,7 +23,7 @@
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 2
+%global nodejs_release 3
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -46,6 +47,12 @@
 %global http_parser_minor 7
 %global http_parser_patch 0
 %global http_parser_version %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
+
+# libuv - from deps/uv/include/uv-version.h
+%global libuv_major 1
+%global libuv_minor 14
+%global libuv_patch 1
+%global libuv_version %{libuv_major}.%{libuv_minor}.%{libuv_patch}
 
 # punycode - from lib/punycode.js
 # Note: this was merged into the mainline since 0.6.x
@@ -98,9 +105,9 @@ Source7: nodejs_native.attr
 # Disable running gyp on bundled deps we don't use
 Patch1: 0001-Disable-running-gyp-files-for-bundled-deps.patch
 
+Patch2: 0001-Fix-aarch64-debug.patch
+
 BuildRequires: python2-devel
-BuildRequires: libuv-devel >= 1:1.9.1
-Requires: libuv >= 1:1.9.1
 BuildRequires: libicu-devel
 BuildRequires: zlib-devel
 BuildRequires: gcc >= 4.9.4
@@ -110,8 +117,11 @@ BuildRequires: gcc-c++ >= 4.9.4
 BuildRequires: systemtap-sdt-devel
 BuildRequires: http-parser-devel >= 2.7.0
 Requires: http-parser >= 2.7.0
+BuildRequires: libuv-devel >= 1:1.9.1
+Requires: libuv >= 1:1.9.1
 %else
 Provides: bundled(http-parser) = %{http_parser_version}
+Provides" bundled(libuv) = %{libuv_version}
 %endif
 
 BuildRequires: (openssl-devel <= 1:1.1.0 or compat-openssl10-devel)
@@ -183,13 +193,13 @@ real-time applications that run across distributed devices.
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
 Requires: %{name}%{?_isa} = %{epoch}:%{nodejs_version}-%{nodejs_release}%{?dist}
-Requires: libuv-devel%{?_isa}
 Requires: openssl-devel%{?_isa}
 Requires: zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
 %if ! 0%{?bootstrap}
 Requires: http-parser-devel%{?_isa}
+Requires: libuv-devel%{?_isa}
 %endif
 
 %description devel
@@ -237,8 +247,9 @@ The API documentation for the Node.js JavaScript runtime.
 # remove bundled dependencies that we aren't building
 %patch1 -p1
 rm -rf deps/icu-small \
-       deps/uv \
        deps/zlib
+
+%patch2 -p1
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
@@ -274,7 +285,6 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
 ./configure --prefix=%{_prefix} \
            --shared-openssl \
            --shared-zlib \
-           --shared-libuv \
            --without-dtrace \
            --with-intl=system-icu \
            --debug-http2 \
@@ -431,6 +441,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Sep 20 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
+- Build with bootstrap + bundle libuv for modularity
+- backport patch for aarch64 debug build
+
 * Wed Sep 13 2017 Stephen Gallagher <sgallagh@redhat.com> - -
 - Disable debug builds on aarch64 due to https://github.com/nodejs/node/issues/15395
 
