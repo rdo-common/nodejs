@@ -171,7 +171,7 @@ Provides: bundled(v8) = %{v8_version}
 
 # As of v8.4.0, Node.js has http/2 support. They however don't provide --shared-<lib>
 # option yet.
-Provides: bundled(nghttp2) = 1.22.0
+Provides: bundled(nghttp2) = 1.25.0
 
 # Make sure we keep NPM up to date when we update Node.js
 %if 0%{?epel}
@@ -441,6 +441,11 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Sep 27 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
+- Fix nghttp2 version
+- Update to 8.6.0
+- https://nodejs.org/en/blog/release/v8.6.0/
+
 * Wed Sep 20 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
 - Build with bootstrap + bundle libuv for modularity
 - backport patch for aarch64 debug build
