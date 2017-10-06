@@ -1,7 +1,9 @@
 %global with_debug 1
 
 # bundle dependencies that are not available as Fedora modules
-%{!?_with_bootstrap: %global bootstrap 1}
+# %%{!?_with_bootstrap: %%global bootstrap 1}
+# use bcond for building modules
+%bcond_with bootstrap
 
 %{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
@@ -23,7 +25,7 @@
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -113,15 +115,16 @@ BuildRequires: zlib-devel
 BuildRequires: gcc >= 4.9.4
 BuildRequires: gcc-c++ >= 4.9.4
 
-%if ! 0%{?bootstrap}
+#%if ! 0%%{?bootstrap}
+%if %{with bootstrap}
+Provides: bundled(http-parser) = %{http_parser_version}
+Provides: bundled(libuv) = %{libuv_version}
+%else
 BuildRequires: systemtap-sdt-devel
 BuildRequires: http-parser-devel >= 2.7.0
 Requires: http-parser >= 2.7.0
 BuildRequires: libuv-devel >= 1:1.9.1
 Requires: libuv >= 1:1.9.1
-%else
-Provides: bundled(http-parser) = %{http_parser_version}
-Provides: bundled(libuv) = %{libuv_version}
 %endif
 
 BuildRequires: (openssl-devel <= 1:1.1.0 or compat-openssl10-devel)
@@ -197,7 +200,10 @@ Requires: openssl-devel%{?_isa}
 Requires: zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
-%if ! 0%{?bootstrap}
+#%if ! 0%%{?bootstrap}
+%if %{with bootstrap}
+# deps are bundled
+%else
 Requires: http-parser-devel%{?_isa}
 Requires: libuv-devel%{?_isa}
 %endif
@@ -270,13 +276,12 @@ export CXXFLAGS='%{optflags} -g \
 export CFLAGS="$(echo ${CFLAGS} | tr '\n\\' '  ')"
 export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
 
-%if ! 0%{?bootstrap}
+#%if ! 0%%{?bootstrap}
+%if %{with bootstrap}
 ./configure --prefix=%{_prefix} \
            --shared-openssl \
            --shared-zlib \
-           --shared-libuv \
-           --shared-http-parser \
-           --with-dtrace \
+           --without-dtrace \
            --with-intl=system-icu \
            --debug-http2 \
            --debug-nghttp2 \
@@ -285,7 +290,9 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
 ./configure --prefix=%{_prefix} \
            --shared-openssl \
            --shared-zlib \
-           --without-dtrace \
+           --shared-libuv \
+           --shared-http-parser \
+           --with-dtrace \
            --with-intl=system-icu \
            --debug-http2 \
            --debug-nghttp2 \
@@ -398,7 +405,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %dir %{_datadir}/systemtap/tapset
 %{_datadir}/systemtap/tapset/node.stp
 
-%if ! 0%{?bootstrap}
+#%if ! 0%%{?bootstrap}
+%if %{with bootstrap}
+# no dtrace
+%else
 %dir %{_usr}/lib/dtrace
 %{_usr}/lib/dtrace/node.d
 %endif
@@ -441,6 +451,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Fri Oct 06 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
+- Use bcond macro instead of bootstrap conditional
+
 * Wed Sep 27 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
 - Fix nghttp2 version
 - Update to 8.6.0
