@@ -21,18 +21,18 @@
 # than a Fedora release lifecycle.
 %global nodejs_epoch 1
 %global nodejs_major 8
-%global nodejs_minor 6
+%global nodejs_minor 7
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 2
+%global nodejs_release 1
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 6
-%global v8_minor 0
-%global v8_build 287
-%global v8_patch 53
+%global v8_minor 1
+%global v8_build 534
+%global v8_patch 42
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -52,8 +52,8 @@
 
 # libuv - from deps/uv/include/uv-version.h
 %global libuv_major 1
-%global libuv_minor 14
-%global libuv_patch 1
+%global libuv_minor 15
+%global libuv_patch 0
 %global libuv_version %{libuv_major}.%{libuv_minor}.%{libuv_patch}
 
 # punycode - from lib/punycode.js
@@ -67,8 +67,8 @@
 # npm - from deps/npm/package.json
 %global npm_epoch 1
 %global npm_major 5
-%global npm_minor 3
-%global npm_patch 0
+%global npm_minor 4
+%global npm_patch 2
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # In order to avoid needing to keep incrementing the release version for the
@@ -451,6 +451,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Sun Oct 15 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
+- Update to 8.7.0
+- https://nodejs.org/en/blog/release/v8.7.0/
+
 * Fri Oct 06 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
 - Use bcond macro instead of bootstrap conditional
 
