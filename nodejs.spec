@@ -22,7 +22,7 @@
 %global nodejs_epoch 1
 %global nodejs_major 8
 %global nodejs_minor 8
-%global nodejs_patch 0
+%global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -451,27 +451,30 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
-* Wed Oct 25 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
+* Thu Oct 26 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.8.1-1
+- Update to 8.8.1 to fix a regression
+
+* Wed Oct 25 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.8.0-1
 - Security update to 8.8.0
 - https://nodejs.org/en/blog/release/v8.8.0/
 
-* Sun Oct 15 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
+* Sun Oct 15 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.7.0-1
 - Update to 8.7.0
 - https://nodejs.org/en/blog/release/v8.7.0/
 
-* Fri Oct 06 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
+* Fri Oct 06 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.6.0-2
 - Use bcond macro instead of bootstrap conditional
 
-* Wed Sep 27 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
+* Wed Sep 27 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.6.0-1
 - Fix nghttp2 version
 - Update to 8.6.0
 - https://nodejs.org/en/blog/release/v8.6.0/
 
-* Wed Sep 20 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - -
+* Wed Sep 20 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.5.0-3
 - Build with bootstrap + bundle libuv for modularity
 - backport patch for aarch64 debug build
 
-* Wed Sep 13 2017 Stephen Gallagher <sgallagh@redhat.com> - -
+* Wed Sep 13 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.5.0-2
 - Disable debug builds on aarch64 due to https://github.com/nodejs/node/issues/15395
 
 * Tue Sep 12 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.5.0-1
