@@ -107,7 +107,12 @@ Source7: nodejs_native.attr
 # Disable running gyp on bundled deps we don't use
 Patch1: 0001-Disable-running-gyp-files-for-bundled-deps.patch
 
+# Being fixed upstream.
+# Follow https://bugs.chromium.org/p/v8/issues/detail?id=6939
 Patch2: 0001-Fix-aarch64-debug.patch
+
+# From upstream PR: https://github.com/nodejs/node/pull/16432
+Patch3: 0001-src-fix-http2-debug-build-errors.patch
 
 BuildRequires: python2-devel
 BuildRequires: libicu-devel
@@ -256,6 +261,7 @@ rm -rf deps/icu-small \
        deps/zlib
 
 %patch2 -p1
+%patch3 -p1
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)

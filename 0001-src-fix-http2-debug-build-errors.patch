@@ -1,0 +1,85 @@
+From 27a4275eb7a52d944b95655fd5afc8b192e95b8c Mon Sep 17 00:00:00 2001
+From: Daniel Bevenius <daniel.bevenius@gmail.com>
+Date: Tue, 24 Oct 2017 08:34:02 +0200
+Subject: [PATCH] src: fix http2 debug build errors
+
+Currently building with debug enabled produces the following errors:
+
+In file included from ../src/node_http2.h:6:
+../src/node_http2_core-inl.h:465:18: error: expected ';' after do/while
+statement
+  CHECK_GT(id, 0)
+                 ^
+                 ;
+../src/node_http2_core-inl.h:469:18: error: use of undeclared identifier
+'spec'
+  OnPriority(id, spec.stream_id, spec.weight, spec.exclusive);
+                 ^
+../src/node_http2_core-inl.h:469:34: error: use of undeclared identifier
+'spec'
+  OnPriority(id, spec.stream_id, spec.weight, spec.exclusive);
+                                 ^
+../src/node_http2_core-inl.h:469:47: error: use of undeclared identifier
+'spec'
+  OnPriority(id, spec.stream_id, spec.weight, spec.exclusive);
+                                              ^
+
+This commit adds the missing semicolon to fix the above error.
+
+../src/node_http2.cc:92:9: error: reference to non-static member
+function must be called; did you mean to call
+      it with no arguments?
+  CHECK(object->Has(context, env()->ongetpadding_string()).FromJust());
+        ^~~~~~
+../src/util.h:120:20: note: expanded from macro 'CHECK'
+    if (UNLIKELY(!(expr))) {
+\
+                   ^~~~
+../src/util.h:107:44: note: expanded from macro 'UNLIKELY'
+
+For this issue I was not sure what the correct check would be so I've
+just commented it out and will update after feedback.
+
+squash: uncomment check
+---
+ src/node_http2.cc         | 2 +-
+ src/node_http2_core-inl.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/node_http2.cc b/src/node_http2.cc
+index 089423334366c2696b9458ea0aa660ecf3f7ce3e..e10c71e9a84e1ecaf268ef733a2a79ad57c9dc74 100644
+--- a/src/node_http2.cc
++++ b/src/node_http2.cc
+@@ -87,11 +87,11 @@ ssize_t Http2Session::OnCallbackPadding(size_t frameLen,
+ 
+   HandleScope handle_scope(isolate);
+   Context::Scope context_scope(context);
+ 
+ #if defined(DEBUG) && DEBUG
+-  CHECK(object->Has(context, env()->ongetpadding_string()).FromJust());
++  CHECK(object()->Has(context, env()->ongetpadding_string()).FromJust());
+ #endif
+ 
+   AliasedBuffer<uint32_t, v8::Uint32Array>& buffer =
+       env()->http2_state()->padding_buffer;
+   buffer[PADDING_BUF_FRAME_LENGTH] = frameLen;
+diff --git a/src/node_http2_core-inl.h b/src/node_http2_core-inl.h
+index 5bfe1dc19a949c9d861ad2d7423a91617feb0649..9735e565b2f0e2585a043054da87d1c81e4e3abf 100644
+--- a/src/node_http2_core-inl.h
++++ b/src/node_http2_core-inl.h
+@@ -460,11 +460,11 @@ inline void Nghttp2Session::HandlePriorityFrame(const nghttp2_frame* frame) {
+   // Priority frame stream ID should never be <= 0. nghttp2 handles this
+   // as an error condition that terminates the session, so we should be
+   // good here
+ 
+ #if defined(DEBUG) && DEBUG
+-  CHECK_GT(id, 0)
++  CHECK_GT(id, 0);
+ #endif
+ 
+   nghttp2_priority_spec spec = priority_frame.pri_spec;
+   OnPriority(id, spec.stream_id, spec.weight, spec.exclusive);
+ }
+-- 
+2.14.2
+
