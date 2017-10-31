@@ -21,8 +21,8 @@
 # than a Fedora release lifecycle.
 %global nodejs_epoch 1
 %global nodejs_major 8
-%global nodejs_minor 8
-%global nodejs_patch 1
+%global nodejs_minor 9
+%global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -32,7 +32,7 @@
 %global v8_major 6
 %global v8_minor 1
 %global v8_build 534
-%global v8_patch 42
+%global v8_patch 46
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -67,8 +67,8 @@
 # npm - from deps/npm/package.json
 %global npm_epoch 1
 %global npm_major 5
-%global npm_minor 4
-%global npm_patch 2
+%global npm_minor 5
+%global npm_patch 1
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # In order to avoid needing to keep incrementing the release version for the
@@ -110,9 +110,6 @@ Patch1: 0001-Disable-running-gyp-files-for-bundled-deps.patch
 # Being fixed upstream.
 # Follow https://bugs.chromium.org/p/v8/issues/detail?id=6939
 Patch2: 0001-Fix-aarch64-debug.patch
-
-# From upstream PR: https://github.com/nodejs/node/pull/16432
-Patch3: 0001-src-fix-http2-debug-build-errors.patch
 
 BuildRequires: python2-devel
 BuildRequires: libicu-devel
@@ -261,7 +258,6 @@ rm -rf deps/icu-small \
        deps/zlib
 
 %patch2 -p1
-%patch3 -p1
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
@@ -457,6 +453,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Oct 31 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.9.0-1
+- Update to 8.9.0
+- Drop upstreamed patch
+
 * Thu Oct 26 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.8.1-1
 - Update to 8.8.1 to fix a regression
 
