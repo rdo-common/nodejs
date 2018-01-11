@@ -22,17 +22,17 @@
 %global nodejs_epoch 1
 %global nodejs_major 8
 %global nodejs_minor 9
-%global nodejs_patch 3
+%global nodejs_patch 4
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 2
+%global nodejs_release 1
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 6
 %global v8_minor 1
 %global v8_build 534
-%global v8_patch 48
+%global v8_patch 50
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -56,9 +56,15 @@
 %global libuv_patch 0
 %global libuv_version %{libuv_major}.%{libuv_minor}.%{libuv_patch}
 
+# nghttp2 - from deps/nghttp2/lib/includes/nghttp2/nghttp2ver.h
+%global nghttp2_major 1
+%global nghttp2_minor 25
+%global nghttp2_patch 0
+%global nghttp2_version %{nghttp2_major}.%{nghttp2_minor}.%{nghttp2_patch}
+
 # punycode - from lib/punycode.js
 # Note: this was merged into the mainline since 0.6.x
-# Note: this will be unmerged in v7 or v8
+# Note: this will be unmerged in an upcoming major release
 %global punycode_major 2
 %global punycode_minor 0
 %global punycode_patch 0
@@ -67,8 +73,8 @@
 # npm - from deps/npm/package.json
 %global npm_epoch 1
 %global npm_major 5
-%global npm_minor 5
-%global npm_patch 1
+%global npm_minor 6
+%global npm_patch 0
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # In order to avoid needing to keep incrementing the release version for the
@@ -121,12 +127,15 @@ BuildRequires: gcc-c++ >= 4.9.4
 %if %{with bootstrap}
 Provides: bundled(http-parser) = %{http_parser_version}
 Provides: bundled(libuv) = %{libuv_version}
+Provides: bundled(nghttp2) = %{nghttp2_version}
 %else
 BuildRequires: systemtap-sdt-devel
 BuildRequires: http-parser-devel >= 2.7.0
 Requires: http-parser >= 2.7.0
 BuildRequires: libuv-devel >= 1:1.9.1
 Requires: libuv >= 1:1.9.1
+BuildRequires: libnghttp2-devel >= 1.25.0
+Requires: libnghttpd2 >= 1.25.0
 %endif
 
 BuildRequires: (openssl-devel <= 1:1.1.0 or compat-openssl10-devel)
@@ -173,10 +182,6 @@ Provides: bundled(c-ares) = %{c_ares_version}
 # against a shared system version entirely.
 # See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
 Provides: bundled(v8) = %{v8_version}
-
-# As of v8.4.0, Node.js has http/2 support. They however don't provide --shared-<lib>
-# option yet.
-Provides: bundled(nghttp2) = 1.25.0
 
 # Make sure we keep NPM up to date when we update Node.js
 %if 0%{?epel}
@@ -294,6 +299,7 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --shared-zlib \
            --shared-libuv \
            --shared-http-parser \
+           --shared-nghttp2 \
            --with-dtrace \
            --with-intl=system-icu \
            --debug-http2 \
@@ -453,7 +459,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
-* Fri Dec 08 2017 Stephen Gallagher <sgallagh@redhat.com> - -
+* Thu Jan 11 2018 Stephen Gallagher <sgallagh@redhat.com> - 1:8.9.4-1
+- Update to 8.9.4
+- https://nodejs.org/en/blog/release/v8.9.4/
+- Switch to system copy of nghttp2
+
+* Fri Dec 08 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.9.3-2
 - Update to 8.9.3
 - https://nodejs.org/en/blog/release/v8.9.3/
 - https://nodejs.org/en/blog/release/v8.9.2/
