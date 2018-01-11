@@ -25,7 +25,7 @@
 %global nodejs_patch 4
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -135,7 +135,7 @@ Requires: http-parser >= 2.7.0
 BuildRequires: libuv-devel >= 1:1.9.1
 Requires: libuv >= 1:1.9.1
 BuildRequires: libnghttp2-devel >= 1.25.0
-Requires: libnghttpd2 >= 1.25.0
+Requires: libnghttp2 >= 1.25.0
 %endif
 
 BuildRequires: (openssl-devel <= 1:1.1.0 or compat-openssl10-devel)
@@ -459,6 +459,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Jan 11 2018 Stephen Gallagher <sgallagh@redhat.com> - 1:8.9.4-2
+- Fix incorrect Requires:
+
 * Thu Jan 11 2018 Stephen Gallagher <sgallagh@redhat.com> - 1:8.9.4-1
 - Update to 8.9.4
 - https://nodejs.org/en/blog/release/v8.9.4/
