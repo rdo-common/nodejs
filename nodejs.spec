@@ -184,7 +184,7 @@ Provides: bundled(c-ares) = %{c_ares_version}
 Provides: bundled(v8) = %{v8_version}
 
 # Make sure we keep NPM up to date when we update Node.js
-%if 0%{?epel}
+%if 0%{?rhel}
 # EPEL doesn't support Recommends, so make it strict
 Requires: npm = %{npm_epoch}:%{npm_version}-%{npm_release}%{?dist}
 %else
