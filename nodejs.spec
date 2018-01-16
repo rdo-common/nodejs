@@ -1,5 +1,11 @@
 # fake EPEL in RDO
 %global nodejs_arches      %{ix86} x86_64 %{arm} aarch64 %{power64}
+# EPEL has an old ICU version, so disable the small-icu unbundling
+%if 0%{?fedora}
+%global icu_lib            system-icu
+%else
+%global icu_lib            small-icu
+%endif
 # end fake EPEL
 
 %global with_debug 1
@@ -124,8 +130,13 @@ Patch2: 0001-Fix-aarch64-debug.patch
 BuildRequires: python2-devel
 BuildRequires: libicu-devel
 BuildRequires: zlib-devel
+# gcc 4.9.4 is only available through devtoolset in EL7
+# But no features is used at this stage yet
+# https://github.com/nodejs/build/issues/762
+%if 0%{?fedora}
 BuildRequires: gcc >= 4.9.4
 BuildRequires: gcc-c++ >= 4.9.4
+%endif
 
 #%if ! 0%%{?bootstrap}
 %if %{with bootstrap}
@@ -142,7 +153,7 @@ BuildRequires: libnghttp2-devel >= 1.25.0
 Requires: libnghttp2 >= 1.25.0
 %endif
 
-BuildRequires: (openssl-devel <= 1:1.1.0 or compat-openssl10-devel)
+BuildRequires: openssl-devel <= 1:1.1.0
 
 # we need the system certificate store when Patch2 is applied
 Requires: ca-certificates
@@ -263,8 +274,10 @@ The API documentation for the Node.js JavaScript runtime.
 
 # remove bundled dependencies that we aren't building
 %patch1 -p1
+%if 0%{?fedora}
 rm -rf deps/icu-small \
        deps/zlib
+%endif
 
 %patch2 -p1
 
@@ -293,7 +306,7 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --shared-openssl \
            --shared-zlib \
            --without-dtrace \
-           --with-intl=system-icu \
+           --with-intl=%{?icu_lib} \
            --debug-http2 \
            --debug-nghttp2 \
            --openssl-use-def-ca-store
@@ -305,7 +318,7 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --shared-http-parser \
            --shared-nghttp2 \
            --with-dtrace \
-           --with-intl=system-icu \
+           --with-intl=%{?icu_lib} \
            --debug-http2 \
            --debug-nghttp2 \
            --openssl-use-def-ca-store
